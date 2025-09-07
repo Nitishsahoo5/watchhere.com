@@ -35,16 +35,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
     
     - name: Install Backend Dependencies
-      run: cd backend && npm ci
+      run: cd backend && npm install
     
     - name: Install Frontend Dependencies
-      run: cd frontend && npm ci
+      run: cd frontend && npm install
     
     - name: Install Mobile Dependencies
-      run: cd mobile && npm ci
+      run: cd mobile && npm install
     
     - name: Run Backend Tests
       run: cd backend && npm test || echo "Tests not configured yet"
