@@ -1,0 +1,219 @@
+name: WatchHere CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: watchhere
+  NODE_VERSION: '18'
+
+jobs:
+  # Testing Phase
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install Backend Dependencies
+      run: cd backend && npm ci
+    
+    - name: Install Frontend Dependencies
+      run: cd frontend && npm ci
+    
+    - name: Install Mobile Dependencies
+      run: cd mobile && npm ci
+    
+    - name: Run Backend Tests
+      run: cd backend && npm test
+      env:
+        MONGODB_URI: mongodb://localhost:27017/watchhere_test
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test_jwt_secret_for_ci
+    
+    - name: Run Frontend Tests
+      run: cd frontend && npm test -- --watchAll=false
+    
+    - name: Build Frontend
+      run: cd frontend && npm run build
+      env:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+    
+    - name: Run Mobile Tests
+      run: cd mobile && npm test -- --watchAll=false
+
+  # Security Scan
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Security Audit
+      run: |
+        cd backend && npm audit --audit-level high
+        cd ../frontend && npm audit --audit-level high
+        cd ../mobile && npm audit --audit-level high
+
+  # Backend Deployment
+  deploy-backend:
+    name: Deploy Backend to AWS
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Build, tag, and push Docker image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    
+    - name: Update ECS service
+      run: |
+        aws ecs update-service \
+          --cluster watchhere-cluster \
+          --service watchhere-backend \
+          --force-new-deployment \
+          --desired-count 2
+    
+    - name: Wait for deployment
+      run: |
+        aws ecs wait services-stable \
+          --cluster watchhere-cluster \
+          --services watchhere-backend
+
+  # Frontend Deployment
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Install Vercel CLI
+      run: npm install -g vercel@latest
+    
+    - name: Deploy to Vercel
+      run: |
+        cd frontend
+        vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+      env:
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  # Mobile App Build
+  build-mobile:
+    name: Build Mobile Apps
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Setup Expo CLI
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: Install dependencies
+      run: cd mobile && npm ci
+    
+    - name: Build Android APK
+      run: |
+        cd mobile
+        eas build --platform android --profile production --non-interactive --no-wait
+    
+    - name: Build iOS IPA
+      run: |
+        cd mobile
+        eas build --platform ios --profile production --non-interactive --no-wait
+    
+    - name: Comment PR with build links
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '📱 Mobile builds started! Check [Expo dashboard](https://expo.dev) for progress.'
+          })
+
+  # Deployment Notification
+  notify:
+    name: Deployment Notification
+    needs: [deploy-backend, deploy-frontend, build-mobile]
+    runs-on: ubuntu-latest
+    if: always() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deployment Success
+      if: needs.deploy-backend.result == 'success' && needs.deploy-frontend.result == 'success'
+      run: |
+        echo "🚀 Deployment successful!"
+        echo "Backend: Deployed to AWS ECS"
+        echo "Frontend: Deployed to Vercel"
+        echo "Mobile: Building on Expo"
+    
+    - name: Deployment Failed
+      if: needs.deploy-backend.result == 'failure' || needs.deploy-frontend.result == 'failure'
+      run: |
+        echo "❌ Deployment failed!"
+        exit 1

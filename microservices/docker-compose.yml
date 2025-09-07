@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "80:3000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - VIDEO_SERVICE_URL=http://video-service:3002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3004
+    depends_on:
+      - auth-service
+      - video-service
+      - notification-service
+      - analytics-service
+
+  # Authentication Service
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=${AUTH_DB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    depends_on:
+      - auth-db
+
+  # Video Service
+  video-service:
+    build: ./video-service
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGODB_URI=${VIDEO_DB_URI}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - video-db
+      - redis
+
+  # Notification Service
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "3003:3003"
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  # Analytics Service
+  analytics-service:
+    build: ./analytics-service
+    ports:
+      - "3004:3004"
+    environment:
+      - MONGODB_URI=${ANALYTICS_DB_URI}
+    depends_on:
+      - analytics-db
+
+  # Databases
+  auth-db:
+    image: mongo:7
+    environment:
+      - MONGO_INITDB_DATABASE=watchhere_auth
+    volumes:
+      - auth_data:/data/db
+
+  video-db:
+    image: mongo:7
+    environment:
+      - MONGO_INITDB_DATABASE=watchhere_videos
+    volumes:
+      - video_data:/data/db
+
+  analytics-db:
+    image: mongo:7
+    environment:
+      - MONGO_INITDB_DATABASE=watchhere_analytics
+    volumes:
+      - analytics_data:/data/db
+
+  # Redis for caching and real-time features
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  auth_data:
+  video_data:
+  analytics_data:
+  redis_data:

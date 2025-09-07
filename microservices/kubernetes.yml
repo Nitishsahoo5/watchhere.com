@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: watchhere
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: watchhere
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: watchhere/auth-service:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: watchhere-secrets
+              key: auth-db-uri
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: watchhere-secrets
+              key: jwt-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: watchhere
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 3001
+    targetPort: 3001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-service
+  namespace: watchhere
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: video-service
+  template:
+    metadata:
+      labels:
+        app: video-service
+    spec:
+      containers:
+      - name: video-service
+        image: watchhere/video-service:latest
+        ports:
+        - containerPort: 3002
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: watchhere-secrets
+              key: video-db-uri
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: watchhere-secrets
+              key: aws-access-key
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: watchhere-secrets
+              key: openai-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-service
+  namespace: watchhere
+spec:
+  selector:
+    app: video-service
+  ports:
+  - port: 3002
+    targetPort: 3002
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: watchhere-ingress
+  namespace: watchhere
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - api.watchhere.com
+    secretName: watchhere-tls
+  rules:
+  - host: api.watchhere.com
+    http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 3001
+      - path: /videos
+        pathType: Prefix
+        backend:
+          service:
+            name: video-service
+            port:
+              number: 3002

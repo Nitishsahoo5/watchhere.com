@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:latest
+    container_name: watchhere-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - watchhere-mongo-data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: watchhere
+    networks:
+      - watchhere-network
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: watchhere-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - watchhere-redis-data:/data
+    command: redis-server --appendonly yes --requirepass ""
+    networks:
+      - watchhere-network
+
+  # Backend API (optional - for full Docker setup)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchhere-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/watchhere
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - watchhere-network
+    profiles:
+      - full-docker  # Only start with --profile full-docker
+
+volumes:
+  watchhere-mongo-data:
+    driver: local
+  watchhere-redis-data:
+    driver: local
+
+networks:
+  watchhere-network:
+    driver: bridge

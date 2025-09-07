@@ -1,0 +1,47 @@
+{
+  "name": "watchhere-mobile",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll=false",
+    "test:watch": "jest",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "build:dev": "eas build --platform all --profile development",
+    "build:preview": "eas build --platform all --profile preview",
+    "build:production": "eas build --platform all --profile production",
+    "build:android": "eas build --platform android --profile production",
+    "build:ios": "eas build --platform ios --profile production",
+    "submit:android": "eas submit --platform android --profile production",
+    "submit:ios": "eas submit --platform ios --profile production",
+    "submit:all": "eas submit --platform all --profile production"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
+    "@react-native-async-storage/async-storage": "1.18.2",
+    "@react-native-firebase/app": "^18.6.1",
+    "@react-native-firebase/messaging": "^18.6.1",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
+    "axios": "^1.5.0",
+    "expo": "~49.0.0",
+    "expo-av": "~13.4.1",
+    "expo-device": "~5.4.0",
+    "expo-document-picker": "~11.5.4",
+    "expo-linear-gradient": "~12.3.0",
+    "expo-notifications": "~0.20.1",
+    "expo-status-bar": "^2.2.3",
+    "react": "18.2.0",
+    "react-native": "0.72.10",
+    "react-native-safe-area-context": "4.6.3",
+    "react-native-screens": "~3.22.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  }
+}

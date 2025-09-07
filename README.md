@@ -1,351 +1,294 @@
-# 🎬 WatchHere - AI-Powered Video Streaming Platform
+# 🎬 WatchHere - YouTube Clone Backend
 
-> A modern, full-stack video streaming platform with AI-powered features, real-time interactions, and cross-platform support.
+A complete Node.js + Express backend for a video streaming platform with MongoDB, Redis, and AWS S3 integration.
 
-[![CI/CD Pipeline](https://github.com/your-username/watchhere-platform/workflows/WatchHere%20CI/CD%20Pipeline/badge.svg)](https://github.com/your-username/watchhere-platform/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+## 🚀 Quick Start (Single Command)
 
-## ✨ Features
-
-### 🎥 **Core Video Platform**
-- **Multi-format Upload** - MP4, AVI, MOV, WebM support
-- **Adaptive Streaming** - HLS with multiple quality options
-- **Real-time Comments** - Live chat during video playback
-- **Social Features** - Likes, subscriptions, playlists, shares
-- **Live Streaming** - Real-time broadcasting with WebRTC
-- **Offline Support** - Download videos for offline viewing
-
-### 🤖 **AI-Powered Intelligence**
-- **Smart Recommendations** - ML-based personalized content discovery
-- **Voice Search** - "Find cooking videos under 10 minutes"
-- **Auto Summaries** - AI-generated video descriptions and tags
-- **Content Moderation** - Automated safety screening with OpenAI + AWS Rekognition
-- **Auto Thumbnails** - AI-generated video previews
-- **Transcript Generation** - Automatic video transcription
-
-### 🔒 **Security & Performance**
-- **Rate Limiting** - API protection with express-rate-limit
-- **OAuth Integration** - Google & GitHub social login
-- **Redis Caching** - Lightning-fast content delivery
-- **CDN Optimization** - CloudFront global distribution
-- **Image Optimization** - Sharp processing for thumbnails
-- **Input Sanitization** - XSS and injection protection
-
-### 📱 **Cross-Platform Experience**
-- **Web App** - Responsive Next.js interface
-- **Mobile App** - React Native with push notifications
-- **Admin Dashboard** - Content management and analytics
-- **Real-time Sync** - Socket.IO powered notifications
-
-### 🏗️ **Enterprise Architecture**
-- **Microservices Ready** - Docker + Kubernetes support
-- **Auto-scaling** - ECS with load balancing
-- **Database Optimization** - MongoDB indexing and aggregation
-- **CI/CD Pipeline** - Automated testing and deployment
-
-## 🚀 Quick Start (5 minutes)
-
-### Prerequisites
-- **Node.js** v18+ - [Download](https://nodejs.org/)
-- **MongoDB** - [Atlas](https://cloud.mongodb.com) (recommended) or local
-- **Redis** - [Redis Cloud](https://redis.com/try-free/) (recommended) or local
-
-### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/watchhere-platform.git
+# 1. Clone and setup
+git clone <your-repo-url>
 cd watchhere-platform
+
+# 2. Install dependencies
+cd backend && npm install && cd ..
+
+# 3. Setup environment
+cp .env.example backend/.env
+# Edit backend/.env with your values
+
+# 4. Start everything
+node start-dev.js
 ```
 
-### 2. Backend Setup
+**That's it! 🎉** Your backend will be running with MongoDB, Redis, and all services.
+
+## 📋 Prerequisites
+
+- **Node.js** 16+ ([Download](https://nodejs.org/))
+- **Docker** (optional, for MongoDB/Redis) ([Download](https://docker.com/))
+- **AWS Account** (for S3 storage) ([Sign up](https://aws.amazon.com/))
+
+## 🛠️ Installation
+
+### 1. Install Dependencies
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# Edit .env with your MongoDB URI and JWT secret
-npm run dev
 ```
-✅ **Backend running on http://localhost:5000**
 
-### 3. Frontend Setup
+### 2. Environment Setup
 ```bash
-cd ../frontend
-npm install
-cp .env.local.example .env.local
-npm run dev
+# Copy environment template
+cp .env.example backend/.env
+
+# Edit with your values
+nano backend/.env  # or use any text editor
 ```
-✅ **Frontend running on http://localhost:3000**
 
-### 4. Mobile Setup (Optional)
-```bash
-cd ../mobile
-npm install
-cp .env.example .env
-# Edit .env with your computer's IP address
-npx expo start
-```
-✅ **Mobile app running on Expo**
-
-## 🛠️ Tech Stack
-
-### **Backend (Node.js)**
-| Technology | Purpose | Version |
-|------------|---------|----------|
-| Express.js | REST API Server | ^4.18.2 |
-| MongoDB | Database | ^7.5.0 |
-| Redis | Caching & Sessions | ^4.6.0 |
-| Socket.IO | Real-time Features | ^4.7.2 |
-| OpenAI | AI Features | ^4.20.0 |
-| AWS SDK | Cloud Services | ^2.1467.0 |
-| Sharp | Image Processing | ^0.32.6 |
-| Passport | OAuth Authentication | ^0.7.0 |
-
-### **Frontend (Next.js)**
-| Technology | Purpose | Version |
-|------------|---------|----------|
-| Next.js | React Framework | 14.0.0 |
-| Tailwind CSS | Styling | ^3.3.5 |
-| Socket.IO Client | Real-time | ^4.7.2 |
-| HLS.js | Video Streaming | ^1.4.10 |
-| Axios | HTTP Client | ^1.5.0 |
-
-### **Mobile (React Native)**
-| Technology | Purpose | Version |
-|------------|---------|----------|
-| Expo | Development Platform | ~49.0.0 |
-| React Native | Mobile Framework | 0.72.6 |
-| Expo AV | Video Playback | ~13.6.0 |
-| Firebase | Push Notifications | ^18.6.1 |
-| AsyncStorage | Local Storage | 1.19.3 |
-
-### **DevOps & Cloud**
-| Service | Purpose | Provider |
-|---------|---------|----------|
-| AWS ECS | Container Orchestration | Amazon |
-| Vercel | Frontend Hosting | Vercel |
-| MongoDB Atlas | Database | MongoDB |
-| Redis Cloud | Caching | Redis |
-| CloudFront | CDN | Amazon |
-| S3 | File Storage | Amazon |
-| GitHub Actions | CI/CD | GitHub |
-
-## 📋 Environment Setup
-
-### Required Environment Variables
-
-**Backend (.env)**
-```bash
+**Required Environment Variables:**
+```env
 # Database
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/watchhere
+MONGODB_URI=mongodb://localhost:27017/watchhere
 
-# Authentication
-JWT_SECRET=your_super_secret_key_min_32_characters
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# AWS (Optional - for full features)
+# AWS (Get from AWS Console)
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
-S3_BUCKET_NAME=watchhere-videos
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=your-bucket-name
 
-# AI Features (Optional)
-OPENAI_API_KEY=sk-your_openai_key
-
-# OAuth (Optional)
-GOOGLE_CLIENT_ID=your_google_client_id
-GITHUB_CLIENT_ID=your_github_client_id
+# Security
+JWT_SECRET=your_super_secret_key_here
 ```
 
-**Frontend (.env.local)**
+### 3. Start Development Environment
+
+**Option A: Automatic (Recommended)**
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:5000
+node start-dev.js
 ```
 
-**Mobile (.env)**
+**Option B: Docker Compose**
 ```bash
-API_BASE_URL=http://YOUR_COMPUTER_IP:5000/api
-FIREBASE_PROJECT_ID=your_firebase_project
+docker-compose -f docker-compose.dev.yml up -d
+cd backend && npm run dev
 ```
 
-> 📚 **See [SETUP.md](./SETUP.md) for detailed setup instructions**
-
-## 🧪 Testing
-
-### Run All Tests
+**Option C: Manual**
 ```bash
-# Backend API tests
-cd backend && npm test
+# Terminal 1: Start MongoDB
+docker run -d --name watchhere-mongo -p 27017:27017 mongo:latest
 
-# Frontend component tests
-cd frontend && npm test
+# Terminal 2: Start Redis
+docker run -d --name watchhere-redis -p 6379:6379 redis:alpine
 
-# Mobile app tests
-cd mobile && npm test
-
-# End-to-end tests
-npm run test:e2e
+# Terminal 3: Start Backend
+cd backend && npm run dev
 ```
 
-### Manual Testing
+## 🌐 API Endpoints
+
+Once running, your API will be available at `http://localhost:5000`
+
+### Core Endpoints
+- `GET /health` - Health check
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/videos/trending` - Get trending videos
+- `POST /api/upload/video` - Upload video
+- `GET /api/download/video/:id` - Stream video
+
+### Cached Endpoints (with Redis)
+- `GET /api/cached-videos/trending` - Cached trending videos
+- `GET /api/cached-videos/:id` - Cached video details
+- `GET /api/cached-videos/search/:query` - Cached search results
+
+## 🐳 Docker Commands
+
+### Development Services
 ```bash
-# Test API health
-curl http://localhost:5000/health
+# Start MongoDB + Redis
+npm run docker:dev
 
-# Test video upload
-curl -X POST http://localhost:5000/api/upload \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "video=@test.mp4"
+# Stop services
+npm run docker:stop
+
+# View logs
+npm run docker:logs
+
+# Clean up (removes data)
+npm run docker:clean
 ```
 
-> 📚 **See [TESTING.md](./TESTING.md) for comprehensive testing guide**
+### Full Docker Setup
+```bash
+# Build and run everything in Docker
+docker-compose -f docker-compose.dev.yml --profile full-docker up --build
+```
 
 ## 🚀 Production Deployment
 
-### Backend → AWS ECS
+### Option 1: PM2 (Recommended)
 ```bash
-# Build and deploy
+# Install PM2 globally
+npm install -g pm2
+
+# Deploy with clustering
+node scripts/deploy-pm2.js
+
+# Monitor
+pm2 monit
+```
+
+### Option 2: Docker Production
+```bash
+# Build production image
 docker build -t watchhere-backend ./backend
-aws ecr get-login-password | docker login --username AWS --password-stdin
-docker push your-account.dkr.ecr.region.amazonaws.com/watchhere:latest
-aws ecs update-service --cluster watchhere --service backend --force-new-deployment
+
+# Run production container
+docker run -d \
+  --name watchhere-prod \
+  -p 5000:5000 \
+  --env-file backend/.env \
+  watchhere-backend
 ```
 
-### Frontend → Vercel
+### Option 3: AWS ECS/Fargate
 ```bash
-cd frontend
-vercel --prod
+# Build and push to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
+docker build -t watchhere-backend ./backend
+docker tag watchhere-backend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/watchhere-backend:latest
+docker push <account>.dkr.ecr.us-east-1.amazonaws.com/watchhere-backend:latest
 ```
 
-### Mobile → App Stores
+## 🔧 Development Scripts
+
 ```bash
-cd mobile
-eas build --platform all --profile production
-eas submit --platform all --profile production
+# Backend directory (cd backend)
+npm run dev          # Start with nodemon
+npm run dev:full     # Start with all services
+npm run start        # Production start
+npm run test         # Run tests
+npm run lint         # Check code style
+npm run docker:build # Build Docker image
+
+# Root directory
+node start-dev.js    # Start all services
 ```
 
-### Automated Deployment
-Push to `main` branch triggers automatic deployment:
-- ✅ **Backend** → AWS ECS
-- ✅ **Frontend** → Vercel
-- ✅ **Mobile** → Expo builds
+## 🛑 Stopping Services
 
-> 📚 **See [DEPLOYMENT.md](./DEPLOYMENT.md) for production setup guide**
+### Graceful Shutdown
+- Press `Ctrl+C` in the terminal running `start-dev.js`
 
-## 📊 Performance Benchmarks
+### Manual Cleanup
+```bash
+# Stop Docker containers
+docker stop watchhere-mongo watchhere-redis
+docker rm watchhere-mongo watchhere-redis
 
-| Metric | Target | Achieved |
-|--------|--------|-----------|
-| API Response Time | < 200ms | ✅ 150ms |
-| Video Load Time | < 3s | ✅ 2.1s |
-| Mobile App Launch | < 3s | ✅ 2.5s |
-| Search Results | < 500ms | ✅ 320ms |
-| Recommendation Generation | < 1s | ✅ 680ms |
-
-## 🎯 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/google` - Google OAuth
-- `GET /api/auth/github` - GitHub OAuth
-
-### Videos
-- `GET /api/videos` - List videos (with caching)
-- `GET /api/videos/:id` - Get single video
-- `POST /api/upload` - Upload video
-- `POST /api/videos/:id/like` - Like/unlike video
-
-### AI Features
-- `POST /api/voice-search` - Voice search
-- `GET /api/recommendations` - Personalized recommendations
-- `POST /api/ai/process/:id` - AI content processing
-
-### Real-time
-- `WebSocket /` - Real-time notifications
-- `Socket.IO events` - Comments, likes, live streaming
-
-## 📱 Mobile Features
-
-### Core Functionality
-- 📹 **Video Recording** - Built-in camera integration
-- 📱 **Offline Playback** - Download videos for offline viewing
-- 🔔 **Push Notifications** - Firebase Cloud Messaging
-- 🎤 **Voice Search** - Speech-to-text video discovery
-- 👆 **Gesture Controls** - Swipe, pinch, tap interactions
-
-### App Store Ready
-- 📦 **Signed Builds** - Production APK/IPA generation
-- 🏪 **Store Listings** - Complete metadata and screenshots
-- 🔒 **Security** - Certificate pinning and secure storage
-
-## 🏗️ Architecture
-
-### Microservices (Optional)
-```
-API Gateway (Port 3000)
-├── Auth Service (Port 3001)
-├── Video Service (Port 3002)
-├── Notification Service (Port 3003)
-└── Analytics Service (Port 3004)
+# Stop PM2 processes
+pm2 stop watchhere-backend
+pm2 delete watchhere-backend
 ```
 
-### Database Design
-```
-Users Collection
-├── Authentication data
-├── Profile information
-├── Watch history
-└── Preferences
+## 📊 Monitoring & Logs
 
-Videos Collection
-├── Video metadata
-├── AI-generated content
-├── Moderation status
-└── Analytics data
+### Development
+```bash
+# View all logs
+docker-compose -f docker-compose.dev.yml logs -f
+
+# View specific service
+docker logs watchhere-mongo -f
+docker logs watchhere-redis -f
+```
+
+### Production (PM2)
+```bash
+pm2 logs watchhere-backend  # View logs
+pm2 monit                   # Real-time monitoring
+pm2 status                  # Process status
+```
+
+## 🔍 Troubleshooting
+
+### Port Already in Use
+```bash
+# Find process using port
+netstat -ano | findstr :5000  # Windows
+lsof -i :5000                 # macOS/Linux
+
+# Kill process
+taskkill /PID <PID> /F        # Windows
+kill <PID>                    # macOS/Linux
+```
+
+### MongoDB Connection Issues
+```bash
+# Check MongoDB status
+docker ps | grep mongo
+
+# View MongoDB logs
+docker logs watchhere-mongo
+
+# Connect to MongoDB shell
+docker exec -it watchhere-mongo mongosh
+```
+
+### Redis Connection Issues
+```bash
+# Check Redis status
+docker ps | grep redis
+
+# Test Redis connection
+docker exec -it watchhere-redis redis-cli ping
+```
+
+### AWS S3 Issues
+- Verify AWS credentials in `.env`
+- Check S3 bucket permissions
+- Ensure bucket exists in correct region
+
+## 📁 Project Structure
+
+```
+watchhere-platform/
+├── backend/                 # Node.js backend
+│   ├── config/             # Database, Redis, AWS config
+│   ├── controllers/        # Route controllers
+│   ├── middleware/         # Auth, security middleware
+│   ├── models/            # MongoDB models
+│   ├── routes/            # API routes
+│   ├── services/          # Business logic
+│   ├── .env               # Environment variables
+│   ├── server.js          # Main server file
+│   └── package.json       # Dependencies
+├── scripts/               # Deployment scripts
+├── start-dev.js          # Development startup
+├── docker-compose.dev.yml # Docker services
+└── README.md             # This file
 ```
 
 ## 🤝 Contributing
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-- Follow ESLint configuration
-- Write tests for new features
-- Update documentation
-- Use conventional commit messages
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [SETUP.md](./SETUP.md) | Local development setup |
-| [TESTING.md](./TESTING.md) | Testing guide and checklist |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | Production deployment |
-| [SECURITY_DEPLOYMENT.md](./SECURITY_DEPLOYMENT.md) | Security and mobile deployment |
-| [AI_FEATURES.md](./AI_FEATURES.md) | AI capabilities guide |
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🌟 Acknowledgments
+## 🆘 Support
 
-- **OpenAI** for AI-powered features
-- **AWS** for cloud infrastructure
-- **Vercel** for frontend hosting
-- **Expo** for mobile development
-- **MongoDB** for database services
-- **Redis** for caching solutions
+- 📧 Email: support@watchhere.com
+- 💬 Discord: [WatchHere Community](https://discord.gg/watchhere)
+- 📖 Documentation: [docs.watchhere.com](https://docs.watchhere.com)
+- 🐛 Issues: [GitHub Issues](https://github.com/your-repo/issues)
 
 ---
 
-**Built with ❤️ by the WatchHere team**
-
-[🌐 Live Demo](https://watchhere.vercel.app) • [📱 Download App](https://expo.dev/@your-username/watchhere) • [📖 Documentation](./SETUP.md) • [🐛 Report Bug](https://github.com/your-username/watchhere-platform/issues)" #   w a t c h h e r e . c o m "    
- 
+**Made with ❤️ by the WatchHere Team**
