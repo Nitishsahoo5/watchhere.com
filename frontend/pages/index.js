@@ -1,36 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import { useTrending, useVideos } from '../hooks/useVideos';
 import VideoCard from '../components/VideoCard';
 
 export default function HomePage() {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('all');
   const router = useRouter();
   const { search } = router.query;
 
   const categories = ['all', 'Entertainment', 'Education', 'Music', 'Gaming', 'Sports', 'News'];
 
-  useEffect(() => {
-    fetchVideos();
-  }, [search, category]);
+  const params = {};
+  if (search) params.search = search;
+  if (category !== 'all') params.category = category;
 
-  const fetchVideos = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (search) params.search = search;
-      if (category !== 'all') params.category = category;
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/videos`, { params });
-      setVideos(response.data);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { videos, loading, error } = search || category !== 'all' 
+    ? useVideos(params)
+    : useTrending();
 
   return (
     <div className="container py-4">
@@ -59,6 +45,11 @@ export default function HomePage() {
           <div className="spinner-border text-light" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
+        </div>
+      ) : error ? (
+        <div className="col-12 text-center py-5">
+          <h5 className="text-danger">Error loading videos</h5>
+          <p className="text-light">{error}</p>
         </div>
       ) : (
         <div className="row">

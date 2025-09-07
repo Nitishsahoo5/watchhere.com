@@ -1,34 +1,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useAuth } from '../hooks/useAuth';
 
-export default function LoginPage({ setUser }) {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { login, loading, error } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        email,
-        password
-      });
-
-      Cookies.set('token', response.data.token, { expires: 7 });
-      setUser(response.data.user);
+      await login({ email, password });
       router.push('/');
     } catch (error) {
-      setError(error.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
+      // Error handled by useAuth hook
     }
   };
 

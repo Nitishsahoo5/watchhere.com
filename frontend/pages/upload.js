@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useUpload } from '../hooks/useUpload';
+import { useAuth } from '../hooks/useAuth';
 
-export default function UploadPage({ user }) {
+export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [category, setCategory] = useState('General');
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const { user } = useAuth();
+  const { uploadVideo, uploading, progress, error } = useUpload();
   const router = useRouter();
 
   const categories = ['General', 'Entertainment', 'Education', 'Music', 'Gaming', 'Sports', 'News'];
@@ -30,40 +30,17 @@ export default function UploadPage({ user }) {
     e.preventDefault();
     if (!file || !title.trim() || !user) return;
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('video', file);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('tags', tags);
-    formData.append('category', category);
-
     try {
-      const token = Cookies.get('token');
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setProgress(percentCompleted);
-          }
-        }
-      );
-
+      await uploadVideo({
+        file,
+        title,
+        description,
+        tags,
+        category
+      });
       router.push('/profile');
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
-    } finally {
-      setUploading(false);
-      setProgress(0);
     }
   };
 
