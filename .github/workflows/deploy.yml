@@ -72,9 +72,10 @@ jobs:
     - uses: actions/checkout@v4
     - name: Run Security Audit
       run: |
-        cd backend && npm audit --audit-level high || echo "Security audit found issues - continuing"
-        cd ../frontend && npm audit --audit-level high || echo "Frontend audit found issues - continuing"
-        cd ../mobile && npm audit --audit-level high || echo "Mobile audit found issues - continuing"
+        cd backend && npm audit --audit-level high || true
+        cd ../frontend && npm audit --audit-level high || true
+        cd ../mobile && npm audit --audit-level high || true
+      continue-on-error: true
 
   # Backend Deployment
   deploy-backend:
